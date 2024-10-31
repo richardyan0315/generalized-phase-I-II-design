@@ -3,8 +3,8 @@ rm(list=ls())
 scenario_gBOINET_fix <- readRDS("./Outputs/scenario_gBOINET_fix.rds")
 scenario_gBOINET_all <- readRDS("./Outputs/scenario_gBOINET_all.rds")
 
-OBD_true_random_HE <- readRDS("./Outputs/OBD_true_random_HE.rds") # true OBD for all 729 random scenarios (HE) via scenario generator (line 595)
-OBD_true_random_LT <- readRDS("./Outputs/OBD_true_random_LT.rds") # true OBD for all 729 random scenarios (LT) via scenario generator (line 595)
+OBD_true_random_HE <- readRDS("./Outputs/OBD_true_random_HE.rds") 
+OBD_true_random_LT <- readRDS("./Outputs/OBD_true_random_LT.rds")
 
 # the manually updated gboinet function added poor allocation rate calculation
 gboinet_with_poor_allocation <- function(
