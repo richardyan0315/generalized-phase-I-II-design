@@ -1,16 +1,3 @@
-# Update log: 2023-11-21 Hefei
-# Update log: 2024-10-30 Vancouver
-
-# ------------- NOTE ------------- #
-
-# Need to make sure the values of w_e = 0.7 and [width_SA = 0.1] (determine the true MTD & OBD!)
-# which are in "scenario_generator_local.R"
-
-# dataset named by "RS_"
-
-# Random Scenario Benchmark based on 729 scenarios = 3^3 * 3^3
-# For Toxicity and Efficacy, each has 27 sets of unique values
-
 rm(list=ls())
 
 # ------------- load the packages ------------ #
@@ -31,19 +18,6 @@ rm(list=ls())
 source("./R files/scenario_generator_local.R")
 source("./R files/OBD_selection_visualization_local.R")
 
-# # load gBOIN-ET simulation results for all random scenarios
-# gBOIN_ET_results_all_HE <- readRDS("./Outputs/gBOIN-ET_results_all_HE.rds")
-# gBOIN_ET_results_all_LT <- readRDS("./Outputs/gBOIN-ET_results_all_LT.rds")
-# 
-# gBOIN_ET_poorAllocation_all_HE <- readRDS("./Outputs/gBOIN-ET_poorAllocation_all_HE.rds")
-# gBOIN_ET_poorAllocation_all_LT <- readRDS("./Outputs/gBOIN-ET_poorAllocation_all_LT.rds")
-
-
-# To visualize 729 scenarios into clear version
-
-# NOTE: Now this file include all the results from all 729 scenarios: OBD rate / patient allocation / etc.
-# The data and visualization in this file is for AVERAGE analysis
-
 
 # check the w_e & width_SA
 print(paste0("The current w_e is ", w_e))
@@ -52,8 +26,8 @@ print(paste0("The current interval width is ", width_SA))
 # file name distinguishing based on w_e
 if(w_e > 0.5){INX <- "HE_"} else {INX <- "LT_"}
 
-MTD_true_vector <- MTD_true_current # 27
-OBD_true_vector <- as.vector(t(OBD_true)) # 729, transfer from matrix to vector
+MTD_true_vector <- MTD_true_current 
+OBD_true_vector <- as.vector(t(OBD_true))
 
 
 # sub-group definition
