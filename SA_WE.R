@@ -1,8 +1,5 @@
 # Sensitivity Analysis: W matrix and E matrix for fix scenario
 
-# Update Log: 
-# 2024-10-27 Vancouver
-
 # w_e = 0.7, width_SA efficacy = 0.10 and N* = 6 (default)
 
 rm(list=ls())
@@ -68,16 +65,6 @@ for (i in 1:length(tox_abb)){
   transition_level_eff_fix9[[i]] <- scenario_list[[which(rownames(scenarios_prob_eff) == eff_abb[i])]]
 }
 
-# W and E matrix
-# default 
-# colnames(W) <- c("grade 0", "grade 1", "grade 2", "grade 3", "grade 4")
-# rownames(W) <- c("toxicity A", "toxicity B", "toxicity C")
-# colnames(E) <- c("grade 1", "grade 2", "grade 3")
-# rownames(E) <- c("efficacy 1", "efficacy 2", "efficacy 3")
-# 
-# print(W)
-# print(E)
-
 
 # sensitivity analysis strategy: generate 10 sets of (W,E) random pairs, values ranging from (0,10)
 set.seed(315)
@@ -122,15 +109,6 @@ simN <- 10 # 100
       Scn_E_fix9 <- Gen_Scn_E(transition_level = transition_level_eff_fix9[[fix]], 
                               p_1_eff, p_2_eff, p_3_eff, D = 6, 
                               E = E_list[[rr]])
-      
-      # Scn_T_fix9 <- Gen_Scn_T(transition_level = transition_level_tox_fix9[[fix]], 
-      #                         p_A_tox, p_B_tox, p_C_tox, D = 6, 
-      #                         W = W)
-      # Scn_E_fix9 <- Gen_Scn_E(transition_level = transition_level_eff_fix9[[fix]], 
-      #                         p_1_eff, p_2_eff, p_3_eff, D = 6, 
-      #                         E = E)
-      
-      
       
       early_stop <- numeric()
       MTD_OBD <- data.frame()
@@ -301,14 +279,7 @@ simN <- 10 # 100
           params <- fit$draws(format = "df")
           a_post <- params$alpha 
           b_post <- params$beta
-          
-          # ------------------ The New Updated Version Dose Finding Procedure (11.03) -------------------- #
-          
-          # the original admi_set is the whole dose set Admi_set <- c(1,2,3,4,5,6)
-          # based on the safety rule: when d_current is over-toxic, the Admi_set would be cut into c(1:(toxdose - 1))
-          # when toxdose == 1: early stop the trial due to an empty Admi_set
-          # when toxdose >= 2 and the Admi_set is not empty: execute the dose-finding algorithm within the Admi_set until the maximum patient size reached
-          
+
           
           # record the current dose level
           d_current <- d;
@@ -419,11 +390,11 @@ simN <- 10 # 100
                 else { # n[d_current] < N_star, consider 3 subset doses (d-1, d, d+1) based on k_T == k_star
                   
                   print(paste0("The patient number of upper dose is: ", n[d_upper]))
-                  # when there are 3 doses in the Admi subset，there are four special cases where a unique maximum k_U is not produced, in addition to the normal situation where a unique maximum k_U exists:
+                  # when there are 3 doses in the Admi subset there are four special cases where a unique maximum k_U is not produced, in addition to the normal situation where a unique maximum k_U exists:
                   # 1. same-same-same: 
                   if (k_U_candidates[1] == k_U_candidates[2] & k_U_candidates[2] == k_U_candidates[3]) {
                     d_next <- ifelse(n[d_upper] == 0, 
-                                     Admi_subset[3], # 当n[d_current] < N_star & n[d_upper] == 0, encourage aggressive dose exploration
+                                     Admi_subset[3], # n[d_current] < N_star & n[d_upper] == 0, encourage aggressive dose exploration
                                      sample(Admi_subset, 1, prob = c(0.4,0.4,0.2))) # otherwise randomly select, give lower prob for upper dose (k_T == k_star) 
                   }
                   # 2. same-same-low: When d-1 and d are approximately equivalent and the number of n[d_current] is low, maintain d_current in the next cohort to reconfirm by increasing the number of patients.
@@ -437,7 +408,7 @@ simN <- 10 # 100
                   # 4. same-low-same: d-1 and d+1 are approximately equivalent
                   else if (k_U_candidates[1] == k_U_candidates[3] & k_U_candidates[2] < k_U_candidates[3]) {
                     d_next <- ifelse(n[d_upper] == 0, 
-                                     sample(Admi_subset[c(1,3)], 1, prob = c(0.4,0.6)), # 当n[d_current] < N_star & n[d_upper] == 0, encourage aggressive dose exploration
+                                     sample(Admi_subset[c(1,3)], 1, prob = c(0.4,0.6)), # n[d_current] < N_star & n[d_upper] == 0, encourage aggressive dose exploration
                                      sample(Admi_subset[c(1,3)], 1, prob = c(0.7,0.3))) # otherwise randomly select, give lower prob for upper dose (k_T == k_star)
                   }
                   # *. unique maximum exists
@@ -464,7 +435,7 @@ simN <- 10 # 100
                   d_next <- Admi_subset[which.max(k_U_candidates)]
                 }
               }
-              else { # length(k_U_candidates) == 3, which means Admi subset are 3 distinct doses: 2 3 4 // 3 4 5 etc.
+              else { 
                 
                 print(paste0("The patient number of upper dose is: ", n[d_upper]))
                 
@@ -516,8 +487,6 @@ simN <- 10 # 100
         OD[sim] <- sum(n[which(fix_tox[fix, ] > q_T)])
         
         ## MTD & OBD
-        ## first, update posterior of b using the full data observed which is the results from the last iteration
-        ## second, calculate the posterior mean and variance of EqTP_d "at each dose level"
         
         EqTP <- apply(sapply(x, function(x) {1 / (1 + exp(-a_post - b_post * x))}), 2, mean) # Expected (mean of) qTP for each dose level
         
@@ -525,7 +494,6 @@ simN <- 10 # 100
           k_EqTP_candidate[z] <- which.max(as.numeric(table(cut(EqTP[z], int.bound))))
         }
         
-        #print(k_EqTP_candidate)
         
         if(sum(k_EqTP_candidate > k_star) == length(EqTP)){ 
           MTD_OBD[sim, 1] <- 0 # no MTD 
@@ -533,9 +501,7 @@ simN <- 10 # 100
           EqTP_candidate <- EqTP[k_EqTP_candidate <= k_star] 
           MTD_OBD[sim, 1] <- which.min(abs(EqTP_candidate - q_T)) # MTD #should give it a k_EqTP_candidate similar to the true MTD definition
         }
-        
-        # test
-        #print(EU_hat)
+
         
         if(early_stop[sim] == 1){
           MTD_OBD[sim, 2] <- 0; 
@@ -545,11 +511,7 @@ simN <- 10 # 100
       }
       
       
-      #################### All Trials End, Output Results ####################
-      #scenario_tox_abb <- noquote(toupper(paste0(substr(transition_level_tox_fix9, 1, 1), collapse = "")));
-      #scenario_eff_abb <- noquote(toupper(paste0(substr(transition_level_eff_fix9, 1, 1), collapse = "")));
-      #prefix_scenario[current_combination, 1] <- paste0(scenario_tox_abb, "_", scenario_eff_abb)
-      
+      #################### All Trials End, Output Results ####################      
       # patient allocation results for all 100 trials of current scenario
       colnames(patients_allocation) <- c("dose_1","dose_2","dose_3","dose_4","dose_5","dose_6")
       # write.table(patients_allocation, paste0(path_a, path_allocation, INX, "_patients_allocation_fix_", fix, ".txt"), append = F)
@@ -577,9 +539,6 @@ simN <- 10 # 100
       
       # correct OBD selection percentage for current scenario
       correct_selection_OBD_percentage <- sum(MTD_OBD[,2] == MTD_OBD_true_fix9[fix, 2]) / nrow(MTD_OBD)
-      #correct_selection_OBD_percentage <- sum(MTD_OBD[,2] == OBD_true[, q]) / nrow(MTD_OBD)
-      #print(paste0("The correct selection rate of OBD for current scenario is: ", correct_selection_OBD_percentage*100, "%. ",
-      #             "The true OBD is: dose ", OBD_true[p, q],"."))
       
       csel_OBD_all[current_combination, 1] <- correct_selection_OBD_percentage * 100;
       csel_OBD_all[current_combination, 2] <- MTD_OBD_true_fix9[fix, 2]; #OBD_true[, q];
@@ -666,8 +625,6 @@ for (rr in 1:10) {
   OBD_csel_sum <- OBD_csel_sum + c(resultsAll_average_patient_number[[rr]][1,3], resultsAll_average_patient_number[[rr]][2,3], resultsAll_average_patient_number[[rr]][3,3],
                                    resultsAll_average_patient_number[[rr]][4,2], resultsAll_average_patient_number[[rr]][5,3], resultsAll_average_patient_number[[rr]][6,6],
                                    resultsAll_average_patient_number[[rr]][7,2], resultsAll_average_patient_number[[rr]][8,1], resultsAll_average_patient_number[[rr]][9,4])
-  # OBD true list
-  # resultsAll_csel_OBD_all[[1]][,2]
 }
 
 OBD_rate_mean <- OBD_rate_sum/10
