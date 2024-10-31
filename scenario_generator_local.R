@@ -1,26 +1,16 @@
-# Updated 2023-11-10 Hefei: w_e = 0.7 / 0.45
-
 # Scenario Generation
-# Local Testing Version
 
 rm(list=ls())
 
 ## path for results saving and packages in use ##
 {
   library(rlist)
-  # path <- "/Users/richard.yan/OneDrive\ -\ Simon\ Fraser\ University\ \(1sfu\)/ResearchOct/R\ Outputs/scenario_files/"
-  # path <- paste0("./SFU/scenarios/")
   # path <- "your path/"
 }
 
 set.seed(315)
 
-# MCMC model for the posterior parameter of a and b by stan
 library(cmdstanr)
-
-#model <- cmdstan_model(stan_file = '/Users/richard.yan/OneDrive\ -\ Simon\ Fraser\ University\ \(1sfu\)/ResearchOct/stan\ Codes/qtpi_CC.stan')
-#model <- cmdstan_model(stan_file = './SFU/qtpi_CC.stan')
-
 
 
 ## parameters ##
@@ -274,22 +264,6 @@ library(cmdstanr)
   Gen_Scn_T <- function(transition_level = c("low", "low", "low"),
                         p_A_tox, p_B_tox, p_C_tox, D, W){
     
-    #trans_matrix_tox_L <- as.matrix(rbind(c(0.8,0.2,0,0,0),
-    #                                      c(0,0.8,0.2,0,0),
-    #                                      c(0,0,0.8,0.2,0),
-    #                                      c(0,0,0,0.8,0.2),
-    #                                      c(0,0,0,0,1)))
-    #trans_matrix_tox_M <- as.matrix(rbind(c(0.6,0.4,0,0,0),
-    #                                      c(0,0.6,0.4,0,0),
-    #                                      c(0,0,0.6,0.4,0),
-    #                                      c(0,0,0,0.6,0.4),
-    #                                      c(0,0,0,0,1)))
-    #trans_matrix_tox_H <- as.matrix(rbind(c(0.3,0.7,0,0,0),
-    #                                      c(0,0.3,0.7,0,0),
-    #                                      c(0,0,0.3,0.7,0),
-    #                                      c(0,0,0,0.3,0.7),
-    #                                      c(0,0,0,0,1)))
-    
     # for toxicity A
     if(transition_level[1] == "low"){
       p_A_tox_all <- p_all_doses(p_initial = p_A_tox, D = D, 
@@ -339,16 +313,6 @@ library(cmdstanr)
   Gen_Scn_E <- function(transition_level = c("low", "low", "low"),
                         p_1_eff, p_2_eff, p_3_eff, D, E){
     
-    #trans_matrix_eff_L <- as.matrix(rbind(c(0.8, 0.2, 0),
-    #                                      c(0, 0.8, 0.2),
-    #                                      c(0, 0, 1)))
-    #trans_matrix_eff_M <- as.matrix(rbind(c(0.6, 0.4, 0),
-    #                                      c(0, 0.6, 0.4),
-    #                                      c(0, 0, 1)))
-    #trans_matrix_eff_H <- as.matrix(rbind(c(0.3, 0.7, 0),
-    #                                      c(0, 0.3, 0.7),
-    #                                      c(0, 0, 1)))
-    
     # for efficacy 1
     if(transition_level[1] == "low"){
       p_1_eff_all <- p_all_doses(p_initial = p_1_eff, D = D, 
@@ -391,8 +355,6 @@ library(cmdstanr)
     
     
     return(list(EqEP = EqEP$EqEP,
-                # EqEP_original = EqEP$EqEP_original,
-                # type = EqEP$type,
                 p_eff_all = rbind(p_1_eff_all, p_2_eff_all, p_3_eff_all)))
   }
   
@@ -455,7 +417,6 @@ library(cmdstanr)
 
 # ----------------- Data Generation ------------------ #
 
-# --- 2024.09.15
 # save p_tox_all and p_eff_all for nine fix scenarios
 p_tox_all_fix <- list()
 p_eff_all_fix <- list()
@@ -481,17 +442,6 @@ scenario_list_str <- sapply(scenario_list, function(x) paste(x, collapse = " "))
 
 indices_tox <- sapply(tox_full, function(x) which(scenario_list_str == x))
 indices_eff <- sapply(eff_full, function(x) which(scenario_list_str == x))
-
-# these are the index of fix scenarios in scenario_list
-# print(indices_tox)
-# print(indices_eff)
-
-
-
-
-
-
-
 
 
 # True MTD
@@ -522,11 +472,6 @@ for (p in 1:27) {
     Scn_E <- Gen_Scn_E(transition_level = transition_level_eff, 
                        p_1_eff, p_2_eff, p_3_eff, 
                        D = 6, E = E)
-    
-    # ----- 2024.09.15
-    # if((p %in% indices_tox) & (q %in% indices_eff)) {}
-    # here we need to think further about the re-shape of the curves (see EqEP_shaped)
-    # the results here might be different from the toxicity
     
     
     # store the true EqTP / EqEP as the true toxicity / efficacy probability inputs
@@ -591,21 +536,12 @@ for (p in 1:27) {
   }
 }
 
-# --------- True OBD for all 729 random scenarios, check HE or LT based on w_e value, used in gBOIN-ET simulation ----------
-# saveRDS(OBD_true, file = "./Outputs/OBD_true_random_HE.rds")
-# saveRDS(OBD_true, file = "./Outputs/OBD_true_random_LT.rds")
-
 
 
 # Save the (pT.true, pE.true)
 pT.true <- true_tox_prob_list
 pE.true <- true_eff_prob_list
 curve_type <- curve_type_eff
-
-# True MTD and OBD results
-# MTD_true_current
-# OBD_true
-# merge the final result together
 
 MTD_OBD_true <- data.frame("MTD" = MTD_true_current, OBD_true)
 
