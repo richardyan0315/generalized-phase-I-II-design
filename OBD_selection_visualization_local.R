@@ -1,18 +1,9 @@
-# Updated 2023-11-09 Hefei
-# Updated 2024-09-15 Salt Lake City: update new working paths
-
-
-# ---------- File names for all 5 methods are "HE_" (or "LT_") ----------- #
-
 rm(list=ls())
 # to get the true OBD of each scenario from "OBD_true" data.frame
 source("./R files/scenario_generator_local.R")
 
-# To visualize 729 scenarios into clear version
-
 library(ggplot2)
 
-# NOTE: Now this file include all the results from all 729 scenarios: OBD rate / patient allocation / etc.
 # The data and visualization in this file is for AVERAGE analysis
 
 # *** The DATA in this file will be used in "fix scenario selection.R" as the source file 
@@ -102,33 +93,11 @@ data_OBD_rate_ours <- data.frame(scenarios = 1:length(Ours_OBD_rate), correct_se
 
 data_OBD_rate_gboinet <- data.frame(scenarios = 1:length(gBOIN_ET_OBD_rate), correct_selected_OBD_rate = gBOIN_ET_OBD_rate, group = "gBOIN-ET")
 
-
-
 # merge all data
 combined_data_OBD_rate <- rbind(data_OBD_rate_iso, data_OBD_rate_tepi, data_OBD_rate_utpi, data_OBD_rate_boin12, data_OBD_rate_gboinet,
                                 data_OBD_rate_ours)
 #combined_data_OBD_rate <- rbind(data_OBD_rate_iso, data_OBD_rate_tepi, data_OBD_rate_utpi, data_OBD_rate_boin12, data_OBD_rate_gboinet)
 
-
-# set the breaks
-# breaks <- seq(1, length(Iso_OBD_rate) * 5, by = 27) # without Ours 
-breaks <- seq(1, length(Iso_OBD_rate) * 6, by = 27) # with Ours
-
-# set strip text
-sce_labels <- rep(0,27)
-  
-# plot
-# A1 <- ggplot(combined_data_OBD_rate, aes(x = scenarios, y = correct_selected_OBD_rate, color = group, shape = group)) +
-#   geom_point(size = 2.8) + geom_line(linewidth = 1.1) +
-#   labs(x = "Scenarios", y = "Correct Selected OBD Rate (%)", title = "OBD Selected Rate(%)") +
-#   scale_x_continuous(breaks = breaks) +
-#   facet_wrap(~cut(scenarios, 27), nrow = 3, ncol = 9, scales = "free_x", labeller = labeller(scenarios = sce_labels)) +
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-#   theme(axis.text = element_text(family = "Helvetica", size = 16),
-#         axis.title = element_text(family = "Helvetica", size = 16),
-#         legend.text = element_text(family = "Helvetica", size = 16),
-#         legend.position = "bottom",
-#         legend.title = element_blank())
 
 # ------------------------- end --------------------------- #
 
@@ -153,7 +122,6 @@ for (i in 1:27) {
 Ours_OBD_allocated_patients <- do.call(rbind, file_list_OBD_allocated_patients)
 
 
-
 Iso_OBD_allocated_patients <- cbind(Iso_OBD_allocated_patients, OBD_true_vector)
 TEPI_OBD_allocated_patients <- cbind(TEPI_OBD_allocated_patients, OBD_true_vector)
 uTPI_OBD_allocated_patients <- cbind(uTPI_OBD_allocated_patients, OBD_true_vector)
@@ -168,8 +136,6 @@ BOIN12_OBD_patient <- numeric(nrow(BOIN12_OBD_allocated_patients))
 Ours_OBD_patient <- numeric(nrow(Ours_OBD_allocated_patients))
 
 gBOIN_ET_OBD_patient <- numeric(nrow(Ours_OBD_allocated_patients))
-
-
 
 for (i in 1:nrow(Iso_OBD_allocated_patients)) { # 729 fixed, could use any one method nrow() to get
   col_index <- OBD_true_vector[i]  # get OBD dose in true OBD column
@@ -186,8 +152,6 @@ for (i in 1:nrow(Iso_OBD_allocated_patients)) { # 729 fixed, could use any one m
 gBOIN_ET_OBD_patient <- sapply(seq_along(OBD_true_vector), function(i) gBOIN_ET_npts_all_LT[i, OBD_true_vector[i]]) # for LT
 
 
-
-
 # check 
 # with Ours
 combined_data_OBD_patient_check <- cbind(Iso_OBD_patient, TEPI_OBD_patient, uTPI_OBD_patient, BOIN12_OBD_patient, gBOIN_ET_OBD_patient, Ours_OBD_patient, OBD_true_vector)
@@ -200,7 +164,6 @@ colnames(combined_data_OBD_patient_check) <- c("Iso", "TEPI", "uTPI", "BOIN12", 
 # without Ours
 #colnames(combined_data_OBD_patient_check) <- c("Iso", "TEPI", "uTPI", "BOIN12", "gBOIN-ET", "OBD_true")
 
-#tail(combined_data_OBD_patient_check, 20) # the last 20 scenario results
 
 # create the data frames
 data_OBD_patient_iso <- data.frame(scenarios = 1:length(Iso_OBD_patient), OBD_patient = Iso_OBD_patient, group = "Iso")
@@ -216,27 +179,6 @@ data_OBD_patient_ours <- data.frame(scenarios = 1:length(Ours_OBD_patient), OBD_
 combined_data_OBD_patient <- rbind(data_OBD_patient_iso, data_OBD_patient_tepi, data_OBD_patient_utpi, data_OBD_patient_boin12, data_OBD_patient_gboinet, data_OBD_patient_ours)
 # without Ours
 #combined_data_OBD_patient <- rbind(data_OBD_patient_iso, data_OBD_patient_tepi, data_OBD_patient_utpi, data_OBD_patient_boin12)
-
-
-# set the breaks
-breaks <- seq(1, length(Iso_OBD_patient) * 6, by = 27) # with Ours
-#breaks <- seq(1, length(Iso_OBD_patient) * 5, by = 27) # without Ours
-
-# set strip text
-sce_labels <- rep(0,27)
-
-# plot
-# B1 <- ggplot(combined_data_OBD_patient, aes(x = scenarios, y = OBD_patient, color = group, shape = group)) +
-#   geom_point(size = 2.8) + geom_line(linewidth = 1.1) +
-#   labs(x = "Scenarios", y = "No. of Patients allocated to OBD", title = "Number of OBD Patients") +
-#   scale_x_continuous(breaks = breaks) +
-#   facet_wrap(~cut(scenarios, 27), nrow = 3, ncol = 9, scales = "free_x", labeller = labeller(scenarios = sce_labels)) +
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-#   theme(axis.text = element_text(family = "Helvetica", size = 16),
-#         axis.title = element_text(family = "Helvetica", size = 16),
-#         legend.text = element_text(family = "Helvetica", size = 16),
-#         legend.position = "bottom",
-#         legend.title = element_blank())
 
 # ------------------------- end --------------------------- #
 
@@ -281,26 +223,6 @@ data_PA_rate_ours <- data.frame(scenarios = 1:length(Ours_PA_rate), PA_rate = Ou
 combined_data_PA_rate <- rbind(data_PA_rate_iso, data_PA_rate_tepi, data_PA_rate_utpi, data_PA_rate_boin12, data_PA_rate_gboinet, data_PA_rate_ours)
 #combined_data_PA_rate <- rbind(data_PA_rate_iso, data_PA_rate_tepi, data_PA_rate_utpi, data_PA_rate_boin12, data_PA_rate_gboinet)
 
-# set the breaks
-#breaks <- seq(1, length(Iso_PA_rate) * 5, by = 27) # without Ours 
-breaks <- seq(1, length(Iso_PA_rate) * 6, by = 27) # with Ours
-
-# set strip text
-sce_labels <- rep(0,27)
-
-# plot
-# C1 <- ggplot(combined_data_PA_rate, aes(x = scenarios, y = PA_rate, color = group, shape = group)) +
-#   geom_point(size = 2.8) + geom_line(linewidth = 1.1) +
-#   labs(x = "Scenarios", y = "Poor Allocated Rate", title = "Poor Allocated Rate(%)") +
-#   scale_x_continuous(breaks = breaks) +
-#   facet_wrap(~cut(scenarios, 27), nrow = 3, ncol = 9, scales = "free_x", labeller = labeller(scenarios = sce_labels)) +
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-#   theme(axis.text = element_text(family = "Helvetica", size = 16),
-#         axis.title = element_text(family = "Helvetica", size = 16),
-#         legend.text = element_text(family = "Helvetica", size = 16),
-#         legend.position = "bottom",
-#         legend.title = element_blank())
-
 # ------------------------- end --------------------------- #
 
 
@@ -319,7 +241,6 @@ for (i in 1:27) {
   file_list_OD_rate[[i]] <- data_OD_rate
 }
 Ours_overdose_rate <- do.call(rbind, file_list_OD_rate)
-
 
 Iso_OD_rate <- Iso_overdose_rate[, 1]
 TEPI_OD_rate <- TEPI_overdose_rate[, 1]
@@ -343,79 +264,8 @@ data_OD_rate_ours <- data.frame(scenarios = 1:length(Ours_OD_rate), OD_rate = Ou
 combined_data_OD_rate <- rbind(data_OD_rate_iso, data_OD_rate_tepi, data_OD_rate_utpi, data_OD_rate_boin12, data_OD_rate_gboinet, data_OD_rate_ours)
 #combined_data_OD_rate <- rbind(data_OD_rate_iso, data_OD_rate_tepi, data_OD_rate_utpi, data_OD_rate_boin12, data_OD_rate_gboinet)
 
-# set the breaks
-#breaks <- seq(1, length(Iso_OD_rate) * 5, by = 27) # without Ours 
-breaks <- seq(1, length(Iso_OD_rate) * 6, by = 27) # with Ours
-
-# set strip text
-sce_labels <- rep(0,27)
-
-
-# plot
-# D1 <- ggplot(combined_data_OD_rate, aes(x = scenarios, y = OD_rate, color = group, shape = group)) +
-#   geom_point(size = 2.8) + geom_line(linewidth = 1.1) +
-#   labs(x = "Scenarios", y = "No. of Overdose Patients", title = "Number of Overdose Patients") +
-#   scale_x_continuous(breaks = breaks) +
-#   facet_wrap(~cut(scenarios, 27), nrow = 3, ncol = 9, scales = "free_x", labeller = labeller(scenarios = sce_labels)) +
-#   theme(axis.text.x = element_blank(), axis.title.x = element_blank()) +
-#   theme(axis.text = element_text(family = "Helvetica", size = 16),
-#         axis.title = element_text(family = "Helvetica", size = 16),
-#         legend.text = element_text(family = "Helvetica", size = 16),
-#         legend.position = "bottom",
-#         legend.title = element_blank())
-
 
 # ------------------------- end --------------------------- #
-
-# library(ggpubr)
-# 
-# # merge all the result curves together
-# ggarrange(A1, B1,
-#           labels = c("A", "B"), ncol = 1, nrow = 2, 
-#           font.label = list(size = 24, family = "Helvetica", color = "black"),
-#           common.legend = TRUE, legend = "top")
-# 
-# ggarrange(C1, D1, 
-#           labels = c("C", "D"), ncol = 1, nrow = 2, 
-#           font.label = list(size = 24, family = "Helvetica", color = "black"),
-#           common.legend = TRUE, legend = "top")
-
-
-
-
-
-
-
-
-
-
-
-
-# ------------- Test Draft -------------- #
-# scenario analysis to find a way simplification : TOX
-#true_tox_prob_list
-
-# tox_df <- data.frame(Scenario = rep(1:27, each = length(true_tox_prob_list[[1]])), 
-#                      Tox = unlist(true_tox_prob_list))
-# tox_df$GroupID <- factor(tox_df$Scenario)
-# 
-# 
-# ggplot(tox_df, aes(x = factor(Scenario), y = Tox, color = GroupID)) +
-#   geom_point(size = 4) +
-#   labs(x = "Scenario", y = "Tox", title = "True Toxicity Probability") +
-#   theme_minimal() +
-#   scale_x_discrete(labels = 1:27) + 
-#   scale_color_discrete() +
-#   theme(axis.text = element_text(family = "Helvetica", size = 16),
-#         axis.title = element_text(family = "Helvetica", size = 16),
-#         legend.text = element_text(family = "Helvetica", size = 16),
-#         legend.title = element_text(family = "Helvetica", size = 16),
-#         plot.title = element_text(family = "Helvetica", size = 16)) + 
-#   coord_flip()
-
-
-
-
 
 
 
