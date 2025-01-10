@@ -10,6 +10,6 @@ Here is a brief introduction about the function of each R file. Comprehensive co
 * scenarioGenerator.R: to obtain necessary scenario parameters.
 * simulationResultsCleaning.R: data wrangling for visualization.
 * visualization.R: reproduce result figures as presented in the manuscript and the supplementary document.
-* model.stan: stan model for MCMC.
+* model.stan: stan model.
 
 We will consistently provide the necessary maintenance for these major R files.
