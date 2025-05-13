@@ -14,6 +14,6 @@ Here is a brief introduction to the function of each R file. Comprehensive comme
 
 If you use this repository or the associated method in your work, please cite the following article:
 
-Yan, Y., Lin, R., Guan, T., Shi, H., & Lin, X. (2025). *A Generalized Phase I/II Dose Optimization Trial Design With Multi-Categorical and Multi-Graded Outcomes*. Statistics in Medicine, 44(7), e70049. https://doi.org/10.1002/sim.70049
+Yan, Y., Lin, R., Guan, T., Shi, H., & Lin, X. (2025). *A Generalized Phase I/II Dose Optimization Trial Design With Multi-Categorical and Multi-Graded Outcomes*. Statistics in Medicine, 44(7), e70049. [![DOI](https://img.shields.io/badge/DOI-10.1002/sim.70049-blue)](https://doi.org/10.1002/sim.70049)
 
 We will consistently provide the necessary maintenance for these major R files.
